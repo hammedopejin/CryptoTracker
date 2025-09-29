@@ -35,7 +35,7 @@ Run `PersistenceManagerTests.swift` to verify:
 
 ## Requirements
 
-- iOS 15+
+- iOS 16+
 - Xcode 14+
 
 ## Credits
