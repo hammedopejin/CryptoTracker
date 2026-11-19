@@ -41,6 +41,18 @@ final class CoinListViewModel {
             }
         }
         onDataUpdated?()
+        applySort()
+    }
+    enum SortOrder { case name, price }
+    var sortOrder: SortOrder = .name
+    
+    func applySort() {
+        switch sortOrder {
+        case .name:
+            filteredCoins.sort { $0.name.lowercased() < $1.name.lowercased() }
+        case .price:
+            filteredCoins.sort { ($0.currentPrice ?? 0) > ($1.currentPrice ?? 0) }
+        }
     }
 }
 

@@ -14,6 +14,9 @@ final class CoinCell: UITableViewCell {
     private let nameLabel = UILabel()
     private var imageTask: URLSessionDataTask?
     private static var imageCache = NSCache<NSURL, UIImage>()
+    private let priceLabel = UILabel()
+    private let changeLabel = UILabel()
+    
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -41,7 +44,21 @@ final class CoinCell: UITableViewCell {
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.font = .systemFont(ofSize: 16, weight: .medium)
         nameLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
-
+        
+        priceLabel.translatesAutoresizingMaskIntoConstraints = false
+        priceLabel.font = .systemFont(ofSize: 16, weight: .semibold)
+        priceLabel.textColor = .label
+        priceLabel.textAlignment = .right
+        
+        changeLabel.translatesAutoresizingMaskIntoConstraints = false
+        changeLabel.font = .systemFont(ofSize: 13, weight: .semibold)
+        
+        
+        
+        
+        contentView.addSubview(changeLabel)
+        
+        contentView.addSubview(priceLabel)
         contentView.addSubview(iconView)
         contentView.addSubview(nameLabel)
 
@@ -53,11 +70,28 @@ final class CoinCell: UITableViewCell {
 
             nameLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 12),
             nameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            priceLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            priceLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            changeLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            changeLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: 0)
         ])
     }
 
     func configure(with coin: RemoteCoin) {
+        if let price = coin.currentPrice {
+            priceLabel.text = "$\(String(format: "%.2f", price))"
+        } else {
+            priceLabel.text = "-"
+        }
+        if let pct = coin.changePercent24h {
+            changeLabel.text = String(format: "%+.2f%%", pct)
+            changeLabel.textColor = pct >= 0 ? .systemGreen: .systemRed
+        } else {
+            changeLabel.text = "-"
+            changeLabel.textColor = .secondaryLabel
+        }
+        
         nameLabel.text = "\(coin.name) (\(coin.symbol.uppercased()))"
 
         guard let urlString = coin.image, let url = URL(string: urlString) else {
@@ -67,7 +101,13 @@ final class CoinCell: UITableViewCell {
 
         loadImage(from: url)
     }
-
+    private func formatCompact(_ value: Double) -> String {
+        switch value {
+        case 1_000_000_000_000...: return String(format: "$%.2fT", value / 1_000_000_000_000)
+        case 1_000_000_000...: return String(format: "$%.2fB", value / 1_000_000_000)
+        default: return String(format: "$%.2fM", value / 1_000_000)
+        }
+    }
     private func loadImage(from url: URL) {
         if let cached = CoinCell.imageCache.object(forKey: url as NSURL) {
             iconView.image = cached

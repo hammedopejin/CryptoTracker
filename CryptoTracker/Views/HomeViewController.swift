@@ -13,6 +13,7 @@ final class HomeViewController: UIViewController {
     private let viewModel = CoinListViewModel()
     private let searchController = UISearchController(searchResultsController: nil)
     weak var coordinator: AppCoordinator?
+    private let sortControl = UISegmentedControl(items: ["Name", "Price"])
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,6 +49,8 @@ final class HomeViewController: UIViewController {
         searchController.searchBar.placeholder = "Search Coins"
         navigationItem.searchController = searchController
         definesPresentationContext = true
+        sortControl.addTarget(self, action: #selector(sortChanged), for: .valueChanged)
+        navigationItem.titleView = sortControl
     }
 
     private func setupFavoritesButton() {
@@ -63,6 +66,12 @@ final class HomeViewController: UIViewController {
         viewModel.onDataUpdated = { [weak self] in
             self?.tableView.reloadData()
         }
+    }
+    
+    @objc private func sortChanged() {
+        viewModel.sortOrder = (sortControl.selectedSegmentIndex == 0) ? .name : .price
+        viewModel.applySort()
+        tableView.reloadData()
     }
 
     @objc private func showFavorites() {
