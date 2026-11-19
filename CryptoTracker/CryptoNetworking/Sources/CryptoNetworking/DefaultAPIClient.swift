@@ -14,7 +14,7 @@ public final class DefaultAPIClient: APIClient {
         self.session = session
     }
 
-    public func request<T: Decodable>(_ endpoint: APIEndpoint, completion: @escaping (Result<T, Error>) -> Void) {
+    public func request<T: Decodable>(_ endpoint: APIEndpoint, completion: @escaping @Sendable (Result<T, Error>) -> Void) {
         guard let url = endpoint.url else {
             completion(.failure(APIError.invalidURL))
             return

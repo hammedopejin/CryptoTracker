@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol APIClient {
-    func request<T: Decodable>(_ endpoint: APIEndpoint, completion: @escaping (Result<T, Error>) -> Void)
+    func request<T: Decodable>(_ endpoint: APIEndpoint, completion: @escaping @Sendable (Result<T, Error>) -> Void)
 }
